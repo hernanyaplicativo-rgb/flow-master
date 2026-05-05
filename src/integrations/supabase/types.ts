@@ -14,13 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ticket_counter: {
+        Row: {
+          day: string
+          normal_count: number
+          priority_count: number
+        }
+        Insert: {
+          day: string
+          normal_count?: number
+          priority_count?: number
+        }
+        Update: {
+          day?: string
+          normal_count?: number
+          priority_count?: number
+        }
+        Relationships: []
+      }
+      tickets: {
+        Row: {
+          called_at: string | null
+          category: string
+          counter: number | null
+          created_at: string
+          customer_name: string | null
+          finished_at: string | null
+          id: string
+          scheduled_at: string | null
+          served_at: string | null
+          status: string
+          ticket_code: string
+        }
+        Insert: {
+          called_at?: string | null
+          category: string
+          counter?: number | null
+          created_at?: string
+          customer_name?: string | null
+          finished_at?: string | null
+          id?: string
+          scheduled_at?: string | null
+          served_at?: string | null
+          status?: string
+          ticket_code: string
+        }
+        Update: {
+          called_at?: string | null
+          category?: string
+          counter?: number | null
+          created_at?: string
+          customer_name?: string | null
+          finished_at?: string | null
+          id?: string
+          scheduled_at?: string | null
+          served_at?: string | null
+          status?: string
+          ticket_code?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      next_ticket_code: { Args: { p_category: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
