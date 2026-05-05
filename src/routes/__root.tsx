@@ -1,24 +1,15 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
-
+import { Link, Outlet, createRootRoute, HeadContent, Scripts, useLocation } from "@tanstack/react-router";
+import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
+import { Calendar, Monitor, Tv, LayoutDashboard } from "lucide-react";
 
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
-        </div>
+        <p className="mt-2 text-sm text-muted-foreground">Página não encontrada.</p>
+        <Link to="/" className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Voltar</Link>
       </div>
     </div>
   );
@@ -29,21 +20,10 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { title: "BCN — Omni-channel Queuing" },
+      { name: "description", content: "Plataforma enterprise de gestão de experiência do cliente do BCN." },
     ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -52,10 +32,8 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
+    <html lang="pt-BR">
+      <head><HeadContent /></head>
       <body>
         {children}
         <Scripts />
@@ -64,6 +42,48 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+const NAV = [
+  { to: "/", label: "Agendamento", icon: Calendar },
+  { to: "/kiosk", label: "Quiosque", icon: Monitor },
+  { to: "/display", label: "Painel TV", icon: Tv },
+  { to: "/staff", label: "Atendente", icon: LayoutDashboard },
+] as const;
+
 function RootComponent() {
-  return <Outlet />;
+  const loc = useLocation();
+  const fullscreen = loc.pathname === "/display";
+
+  return (
+    <>
+      {!fullscreen && (
+        <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+          <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
+            <Link to="/" className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-brand-gradient text-primary-foreground font-bold text-sm shadow-elegant">B</div>
+              <div className="leading-tight">
+                <div className="text-sm font-bold tracking-tight">BCN</div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Queuing</div>
+              </div>
+            </Link>
+            <nav className="flex items-center gap-1">
+              {NAV.map((n) => (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                  activeProps={{ className: "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-secondary text-foreground" }}
+                  activeOptions={{ exact: true }}
+                >
+                  <n.icon className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">{n.label}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </header>
+      )}
+      <Outlet />
+      <Toaster richColors position="top-center" />
+    </>
+  );
 }
