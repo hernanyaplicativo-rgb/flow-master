@@ -58,11 +58,11 @@ function RootComponent() {
       {!fullscreen && (
         <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
           <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-brand-gradient text-primary-foreground font-bold text-sm shadow-elegant">B</div>
+            <Link to="/" className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground font-extrabold text-base shadow-elegant">B</div>
               <div className="leading-tight">
-                <div className="text-sm font-bold tracking-tight">BCN</div>
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Queuing</div>
+                <div className="text-sm font-extrabold tracking-tight">BCN</div>
+                <div className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground">Banco Caboverdiano de Negócios</div>
               </div>
             </Link>
             <nav className="flex items-center gap-1">
