@@ -50,15 +50,15 @@ function DisplayPage() {
         <section className="col-span-3 flex flex-col items-center justify-center rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-10">
           {current ? (
             <div key={current.id} className="text-center animate-pulse-call">
-              <p className="text-xl uppercase tracking-[0.4em] opacity-70">Chamando</p>
-              <p className="mt-6 text-[180px] md:text-[220px] leading-none font-bold tracking-tighter text-glow">{current.ticket_code}</p>
-              <div className="mt-8 inline-flex items-center gap-4 rounded-2xl bg-primary-foreground/10 px-10 py-5 backdrop-blur">
-                <span className="text-2xl uppercase tracking-widest opacity-70">Balcão</span>
-                <span className="text-7xl font-bold">{current.counter ?? 1}</span>
+              <p className="text-xl uppercase tracking-[0.4em] opacity-60">Chamando senha</p>
+              <p className="mt-6 text-[180px] md:text-[240px] leading-none font-extrabold tracking-tighter text-primary text-glow">{current.ticket_code}</p>
+              <div className="mt-8 inline-flex items-center gap-4 rounded-2xl bg-white/10 px-12 py-6 backdrop-blur">
+                <span className="text-2xl uppercase tracking-[0.3em] opacity-70">Balcão</span>
+                <span className="text-7xl font-extrabold">{current.counter ?? 1}</span>
               </div>
             </div>
           ) : (
-            <div className="text-center opacity-70">
+            <div className="text-center opacity-60">
               <p className="text-3xl font-light">Aguardando próxima chamada</p>
             </div>
           )}
