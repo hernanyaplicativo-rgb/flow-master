@@ -137,7 +137,7 @@ function BookingPage() {
               </div>
             </div>
 
-            <Button size="lg" className="w-full" onClick={submit} disabled={loading}>
+            <Button size="lg" className="h-12 w-full bg-success text-base font-bold text-success-foreground hover:bg-success/90" onClick={submit} disabled={loading}>
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
               Emitir Ticket Digital
             </Button>
