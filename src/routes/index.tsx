@@ -170,16 +170,16 @@ function CategoryTile({ active, onClick, icon, title, subtitle }: { active: bool
 function TicketView({ ticket, onNew }: { ticket: Ticket; onNew: () => void }) {
   const payload = JSON.stringify({ id: ticket.id, code: ticket.ticket_code });
   return (
-    <main className="min-h-[calc(100vh-3.5rem)] bg-brand-gradient">
+    <main className="min-h-[calc(100vh-3.5rem)] bg-background">
       <div className="mx-auto max-w-md px-4 py-12">
-        <Card className="overflow-hidden p-0 shadow-elegant animate-slide-up">
-          <div className="bg-brand-gradient p-6 text-center text-primary-foreground">
-            <p className="text-xs uppercase tracking-[0.3em] opacity-80">Seu Ticket</p>
-            <p className="mt-2 text-6xl font-bold tracking-tight">{ticket.ticket_code}</p>
-            <p className="mt-1 text-xs opacity-80">{ticket.category === "priority" ? "Prioritário" : "Normal"}</p>
+        <Card className="overflow-hidden border-border p-0 shadow-elegant animate-slide-up">
+          <div className="border-b border-border p-8 text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-muted-foreground">Sua Senha</p>
+            <p className="mt-3 text-7xl font-black tracking-tighter text-primary">{ticket.ticket_code}</p>
+            <p className="mt-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">{ticket.category === "priority" ? "Prioritário" : "Normal"}</p>
           </div>
           <div className="flex flex-col items-center gap-4 p-6">
-            <div className="rounded-xl bg-white p-3 shadow-elegant">
+            <div className="rounded-xl border border-border bg-white p-3">
               <QRCodeSVG value={payload} size={180} level="M" />
             </div>
             <div className="text-center text-sm">
@@ -190,8 +190,8 @@ function TicketView({ ticket, onNew }: { ticket: Ticket; onNew: () => void }) {
             </div>
             <p className="text-center text-xs text-muted-foreground">Apresente este QR Code no quiosque da agência para check-in instantâneo.</p>
             <div className="grid w-full grid-cols-2 gap-2">
-              <Button variant="outline" onClick={() => window.print()}><Download className="mr-2 h-4 w-4" />Salvar</Button>
-              <Button onClick={onNew}>Novo agendamento</Button>
+              <Button variant="outline" onClick={() => window.print()} className="border-primary text-primary hover:bg-primary/5"><Download className="mr-2 h-4 w-4" />Salvar</Button>
+              <Button onClick={onNew} className="bg-success text-success-foreground hover:bg-success/90">Novo agendamento</Button>
             </div>
           </div>
         </Card>
