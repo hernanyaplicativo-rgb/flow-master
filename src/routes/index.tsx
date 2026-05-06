@@ -59,12 +59,12 @@ function BookingPage() {
   if (ticket) return <TicketView ticket={ticket} onNew={() => setTicket(null)} />;
 
   return (
-    <main className="min-h-[calc(100vh-3.5rem)] bg-brand-gradient">
-      <div className="mx-auto max-w-3xl px-4 py-12 md:py-20">
-        <div className="text-center text-primary-foreground">
-          <p className="text-xs uppercase tracking-[0.3em] opacity-80">Banco BCN</p>
-          <h1 className="mt-2 text-4xl font-bold tracking-tight md:text-5xl">Agende seu atendimento</h1>
-          <p className="mt-3 text-sm opacity-90 md:text-base">Sem filas. Receba um QR Code para check-in instantâneo na agência.</p>
+    <main className="min-h-[calc(100vh-3.5rem)] bg-background">
+      <div className="mx-auto max-w-3xl px-4 py-12 md:py-16">
+        <div className="text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-muted-foreground">BCN Flow · Agendamento</p>
+          <h1 className="mt-2 text-4xl font-extrabold tracking-tight md:text-5xl">Agende seu <span className="text-primary">atendimento</span></h1>
+          <p className="mt-3 text-sm text-muted-foreground md:text-base">Sem filas. Receba um QR Code para check-in instantâneo na agência.</p>
         </div>
 
         <Card className="mt-8 p-6 md:p-8 shadow-elegant animate-slide-up">
