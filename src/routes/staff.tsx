@@ -179,27 +179,28 @@ function StaffPage() {
 
             {!serving ? (
               <Button onClick={callNext} disabled={!next}
-                aria-label="Chamar próximo cliente"
+                aria-label="Chamar próximo cliente (atalho F2)"
                 className="mt-5 h-16 w-full bg-success text-lg font-black uppercase tracking-wider text-success-foreground hover:bg-success/90 focus-visible:ring-4 focus-visible:ring-success/40">
                 <PhoneCall className="mr-2 h-6 w-6" aria-hidden />Chamar Agora
+                <kbd className="ml-3 hidden rounded border border-white/40 bg-white/10 px-1.5 py-0.5 text-xs font-bold tracking-normal sm:inline-block">F2</kbd>
               </Button>
             ) : (
               <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <Button variant="outline" onClick={recall} aria-label="Rechamar cliente"
+                <Button variant="outline" onClick={recall} aria-label="Rechamar cliente (F3)"
                   className="h-12 border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground focus-visible:ring-4 focus-visible:ring-primary/30">
-                  <RotateCcw className="mr-2 h-4 w-4" aria-hidden />Rechamar
+                  <RotateCcw className="mr-2 h-4 w-4" aria-hidden />Rechamar <kbd className="ml-1.5 hidden rounded border border-current/30 px-1 text-[9px] md:inline">F3</kbd>
                 </Button>
-                <Button variant="outline" onClick={hold} aria-label="Pausar atendimento"
+                <Button variant="outline" onClick={hold} aria-label="Pausar atendimento (F4)"
                   className="h-12 border-2 border-warning text-warning hover:bg-warning hover:text-warning-foreground focus-visible:ring-4 focus-visible:ring-warning/30">
-                  <Pause className="mr-2 h-4 w-4" aria-hidden />Pausar
+                  <Pause className="mr-2 h-4 w-4" aria-hidden />Pausar <kbd className="ml-1.5 hidden rounded border border-current/30 px-1 text-[9px] md:inline">F4</kbd>
                 </Button>
-                <Button variant="outline" onClick={transfer} aria-label="Transferir cliente"
+                <Button variant="outline" onClick={transfer} aria-label="Transferir cliente (F5)"
                   className="h-12 border-2 border-foreground/30 text-foreground hover:bg-foreground hover:text-background focus-visible:ring-4 focus-visible:ring-foreground/20">
-                  <ArrowRightLeft className="mr-2 h-4 w-4" aria-hidden />Transferir
+                  <ArrowRightLeft className="mr-2 h-4 w-4" aria-hidden />Transferir <kbd className="ml-1.5 hidden rounded border border-current/30 px-1 text-[9px] md:inline">F5</kbd>
                 </Button>
-                <Button onClick={finish} aria-label="Encerrar atendimento"
+                <Button onClick={finish} aria-label="Encerrar atendimento (F2)"
                   className="h-12 bg-success font-bold text-success-foreground hover:bg-success/90 focus-visible:ring-4 focus-visible:ring-success/40">
-                  <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden />Encerrar
+                  <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden />Encerrar <kbd className="ml-1.5 hidden rounded border border-white/40 bg-white/10 px-1 text-[9px] md:inline">F2</kbd>
                 </Button>
               </div>
             )}
