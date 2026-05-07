@@ -89,6 +89,19 @@ function StaffPage() {
   const transfer = async () => { if (serving) { await update(serving.id, { status: "waiting", counter: null, called_at: null }); toast.info("Transferido para fila"); } };
   const finish = async () => { if (serving) { await update(serving.id, { status: "done", finished_at: new Date().toISOString(), served_at: serving.served_at ?? new Date().toISOString() }); toast.success("Atendimento concluído"); } };
 
+  // Keyboard shortcuts (enterprise productivity)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.tagName === "INPUT") return;
+      if (e.key === "F2") { e.preventDefault(); if (!serving) callNext(); else finish(); }
+      else if (e.key === "F3") { e.preventDefault(); recall(); }
+      else if (e.key === "F4") { e.preventDefault(); hold(); }
+      else if (e.key === "F5") { e.preventDefault(); transfer(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [serving, queue, counter]);
+
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-secondary/30">
       {/* Top brand bar — red, like reference */}
