@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTickets } from "@/hooks/useTickets";
 import { supabase } from "@/integrations/supabase/client";
 import { waitMinutes, type Ticket } from "@/lib/queue";
@@ -343,7 +343,7 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
 
 function LiveClock() {
   const [t, setT] = useState(() => new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }));
-  useMemo(() => {
+  useEffect(() => {
     const i = setInterval(() => setT(new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })), 1000);
     return () => clearInterval(i);
   }, []);
