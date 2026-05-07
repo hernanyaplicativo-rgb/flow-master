@@ -172,4 +172,10 @@
     to { opacity: 1; transform: translateY(0); }
   }
   .animate-slide-up { animation: slide-up 0.4s ease-out; }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee { animation: marquee 45s linear infinite; }
 }
