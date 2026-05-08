@@ -93,7 +93,7 @@ function DisplayPage() {
   }, [current, muted]);
 
   return (
-    <main className="relative flex h-screen w-screen flex-col overflow-hidden bg-background">
+    <main className="relative flex min-h-screen w-screen flex-col overflow-x-hidden bg-background md:h-screen md:overflow-hidden">
       <div className="absolute right-3 top-3 z-50 flex gap-2">
         <button onClick={toggleMute} aria-label={muted ? "Ativar som" : "Silenciar"}
           className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/80 text-foreground shadow-soft backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground">
@@ -104,12 +104,12 @@ function DisplayPage() {
           <Maximize2 className="h-4 w-4" />
         </button>
       </div>
-      <div className="grid flex-1 grid-cols-3 gap-4 overflow-hidden p-5 pb-2">
+      <div className="grid flex-1 grid-cols-1 gap-4 p-4 pb-2 md:grid-cols-3 md:overflow-hidden md:p-5">
         {/* LEFT — SENHA ATUAL (2/3) */}
-        <section className="col-span-2 flex flex-col rounded-3xl border-[3px] border-primary bg-card p-8 shadow-elegant">
+        <section className="flex flex-col rounded-3xl border-[3px] border-primary bg-card p-6 shadow-elegant md:col-span-2 md:p-8">
           <div className="flex items-center justify-between">
-            <h1 className="text-5xl font-black uppercase tracking-tight text-primary">Senha Atual</h1>
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground text-2xl font-extrabold">B</div>
+            <h1 className="text-3xl font-black uppercase tracking-tight text-primary md:text-5xl">Senha Atual</h1>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-xl font-extrabold text-primary-foreground md:h-14 md:w-14 md:text-2xl">B</div>
           </div>
 
           {current ? (
@@ -157,7 +157,7 @@ function DisplayPage() {
         </section>
 
         {/* RIGHT — Sidebar (1/3) on red panel */}
-        <aside className="col-span-1 flex flex-col gap-4 overflow-hidden rounded-3xl bg-primary p-5 text-primary-foreground shadow-elegant">
+        <aside className="flex flex-col gap-4 rounded-3xl bg-primary p-5 text-primary-foreground shadow-elegant md:overflow-hidden">
           {/* Recent calls */}
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center justify-between">

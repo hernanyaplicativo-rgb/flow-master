@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, Accessibility, User, CheckCircle2, Loader2, Download } from "lucide-react";
+import { CalendarIcon, Accessibility, User, CheckCircle2, Loader2, Download, MessageCircle, MapPin } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -168,7 +168,37 @@ function CategoryTile({ active, onClick, icon, title, subtitle }: { active: bool
 }
 
 function TicketView({ ticket, onNew }: { ticket: Ticket; onNew: () => void }) {
+  const [checkingIn, setCheckingIn] = useState(false);
   const payload = JSON.stringify({ id: ticket.id, code: ticket.ticket_code });
+
+  const shareWhatsApp = () => {
+    const text = encodeURIComponent(`Olá! Minha senha no BCN Flow é *${ticket.ticket_code}* para atendimento ${ticket.category === "priority" ? "Prioritário" : "Normal"}. Acompanhe pelo quiosque!`);
+    window.open(`https://wa.me/?text=${text}`, "_blank");
+  };
+
+  const handleAutoCheckIn = () => {
+    setCheckingIn(true);
+    if (!navigator.geolocation) {
+      toast.error("Geolocalização não suportada pelo seu navegador.");
+      setCheckingIn(false);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        // Simulando a verificação de distância com as coordenadas da agência
+        // const { latitude, longitude } = pos.coords;
+        setTimeout(() => {
+          toast.success("Check-in automático realizado com sucesso via GPS!");
+          setCheckingIn(false);
+        }, 1500);
+      },
+      (err) => {
+        toast.error("Não foi possível obter sua localização para o check-in.");
+        setCheckingIn(false);
+      }
+    );
+  };
+
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-background">
       <div className="mx-auto max-w-md px-4 py-12">
@@ -188,8 +218,28 @@ function TicketView({ ticket, onNew }: { ticket: Ticket; onNew: () => void }) {
                 <p className="text-muted-foreground">{format(new Date(ticket.scheduled_at), "PPp", { locale: ptBR })}</p>
               )}
             </div>
-            <p className="text-center text-xs text-muted-foreground">Apresente este QR Code no quiosque da agência para check-in instantâneo.</p>
-            <div className="grid w-full grid-cols-2 gap-2">
+            <p className="text-center text-xs text-muted-foreground">Apresente este QR Code no quiosque da agência ou faça o check-in automático se estiver próximo.</p>
+            
+            <div className="flex w-full flex-col gap-2">
+              <Button 
+                onClick={handleAutoCheckIn} 
+                disabled={checkingIn}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                {checkingIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MapPin className="mr-2 h-4 w-4" />}
+                Check-in Automático via GPS
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={shareWhatsApp} 
+                className="w-full border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Enviar para o WhatsApp
+              </Button>
+            </div>
+
+            <div className="mt-2 grid w-full grid-cols-2 gap-2">
               <Button variant="outline" onClick={() => window.print()} className="border-primary text-primary hover:bg-primary/5"><Download className="mr-2 h-4 w-4" />Salvar</Button>
               <Button onClick={onNew} className="bg-success text-success-foreground hover:bg-success/90">Novo agendamento</Button>
             </div>

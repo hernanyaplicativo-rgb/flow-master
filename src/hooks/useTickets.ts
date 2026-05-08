@@ -5,32 +5,42 @@ import type { Ticket } from "@/lib/queue";
 export function useTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [online, setOnline] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
 
-    const load = async () => {
+    const load = async (showLoading = false) => {
+      if (showLoading) setLoading(true);
       const { data, error } = await supabase
         .from("tickets")
         .select("*")
         .gte("created_at", new Date(new Date().setHours(0, 0, 0, 0)).toISOString())
         .order("created_at", { ascending: false });
+      
       if (!mounted) return;
+      
       if (error) {
         setOnline(false);
-        return;
+      } else {
+        setOnline(true);
+        setTickets((data ?? []) as Ticket[]);
       }
-      setOnline(true);
-      setTickets((data ?? []) as Ticket[]);
+      setLoading(false);
     };
-    load();
+
+    load(true);
 
     const channel = supabase
       .channel("tickets-realtime")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "tickets" },
-        () => load(),
+        (payload) => {
+          // Optimization: We could handle payload.new/old here to avoid full reload
+          // but for now, re-loading is safe and ensures consistency with DB state
+          load();
+        },
       )
       .subscribe();
 
@@ -47,5 +57,5 @@ export function useTickets() {
     };
   }, []);
 
-  return { tickets, online };
+  return { tickets, online, loading };
 }

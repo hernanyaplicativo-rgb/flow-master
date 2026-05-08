@@ -4,6 +4,7 @@ import { Accessibility, Loader2, ArrowLeft, ScanLine, Briefcase, Banknote, HelpC
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { createTicket, type TicketCategory, waitMinutes } from "@/lib/queue";
 import { useTickets } from "@/hooks/useTickets";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +28,7 @@ const SERVICES = [
 ];
 
 function KioskPage() {
-  const { tickets } = useTickets();
+  const { tickets, loading: ticketsLoading } = useTickets();
   const [mode, setMode] = useState<Mode>("home");
   const [code, setCode] = useState("");
   const [issued, setIssued] = useState<{ code: string; category: TicketCategory } | null>(null);
@@ -98,27 +99,35 @@ function KioskPage() {
             <p className="mt-1 text-sm text-muted-foreground">Toque numa opção para retirar a sua senha.</p>
 
             <div className="mt-6 flex flex-1 flex-col gap-3 animate-slide-up">
-              {SERVICES.map((s) => (
-                <ServiceRow
-                  key={s.id}
-                  icon={<s.icon className="h-6 w-6" strokeWidth={2} />}
-                  title={s.title}
-                  subtitle={s.subtitle}
-                  meta={`Espera ~ ${avgWait} min`}
-                  loading={loading === s.id}
-                  onClick={() => issue(s.category, s.id)}
-                />
-              ))}
+              {ticketsLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-[88px] w-full rounded-xl" />
+                ))
+              ) : (
+                <>
+                  {SERVICES.map((s) => (
+                    <ServiceRow
+                      key={s.id}
+                      icon={<s.icon className="h-6 w-6" strokeWidth={2} />}
+                      title={s.title}
+                      subtitle={s.subtitle}
+                      meta={`Espera ~ ${avgWait} min`}
+                      loading={loading === s.id}
+                      onClick={() => issue(s.category, s.id)}
+                    />
+                  ))}
 
-              <ServiceRow
-                accent
-                icon={<Accessibility className="h-6 w-6" strokeWidth={2} />}
-                title="Prioritário"
-                subtitle="Idosos · PCDs · Gestantes"
-                meta="Check-in Prioritário"
-                loading={loading === "priority"}
-                onClick={() => issue("priority", "priority")}
-              />
+                  <ServiceRow
+                    accent
+                    icon={<Accessibility className="h-6 w-6" strokeWidth={2} />}
+                    title="Prioritário"
+                    subtitle="Idosos · PCDs · Gestantes"
+                    meta="Check-in Prioritário"
+                    loading={loading === "priority"}
+                    onClick={() => issue("priority", "priority")}
+                  />
+                </>
+              )}
 
               <button
                 onClick={() => setMode("checkin")}
