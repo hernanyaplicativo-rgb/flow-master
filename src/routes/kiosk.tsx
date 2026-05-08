@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Accessibility, QrCode, Loader2, ArrowLeft, ScanLine, Briefcase, Banknote, HelpCircle, Clock, Smartphone, ChevronRight } from "lucide-react";
+import { Accessibility, QrCode, Loader2, ArrowLeft, ScanLine, Briefcase, Banknote, HelpCircle, Clock, Smartphone, ChevronRight, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -170,18 +170,29 @@ function KioskPage() {
         )}
 
         {mode === "result" && issued && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-card p-10 shadow-elegant animate-slide-up">
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-card p-10 shadow-elegant animate-slide-up print:border-0 print:shadow-none">
+            <div className="print-only hidden text-center print:block">
+              <div className="text-2xl font-black tracking-tight text-primary">BCN</div>
+              <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Banco Caboverdiano de Negócios</div>
+            </div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-muted-foreground">Sua Senha</p>
             <p className="text-[140px] leading-none font-black tracking-tighter text-primary">{issued.code}</p>
             <p className="text-lg font-semibold">{issued.category === "priority" ? "Atendimento Prioritário" : "Atendimento Normal"}</p>
             <p className="flex items-center gap-1.5 text-sm text-muted-foreground"><Clock className="h-3.5 w-3.5" /> Tempo estimado de espera: {avgWait} min</p>
-            <Button
-              size="lg"
-              onClick={() => { setIssued(null); setCode(""); setMode("home"); }}
-              className="mt-4 h-12 bg-success px-12 text-base text-success-foreground hover:bg-success/90"
-            >
-              Concluir
-            </Button>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground print:block">{new Date().toLocaleString("pt-BR")}</p>
+            <div className="mt-4 flex gap-3 print:hidden">
+              <Button size="lg" variant="outline" onClick={() => window.print()}
+                className="h-12 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                <Printer className="mr-2 h-4 w-4" /> Imprimir
+              </Button>
+              <Button
+                size="lg"
+                onClick={() => { setIssued(null); setCode(""); setMode("home"); }}
+                className="h-12 bg-success px-12 text-base text-success-foreground hover:bg-success/90"
+              >
+                Concluir
+              </Button>
+            </div>
           </div>
         )}
       </div>
