@@ -38,7 +38,11 @@ function slaState(min: number) {
 
 function StaffPage() {
   const { tickets, online } = useTickets();
-  const [counter, setCounter] = useState(1);
+  const [counter, setCounter] = useState<number>(() => {
+    if (typeof window === "undefined") return 1;
+    return Number(localStorage.getItem("bcn-staff-counter")) || 1;
+  });
+  useEffect(() => { try { localStorage.setItem("bcn-staff-counter", String(counter)); } catch {} }, [counter]);
   const [attendant] = useState("Carlos Mendes");
 
   const queue = useMemo(() => {
