@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTickets } from "@/hooks/useTickets";
 import { speak } from "@/lib/queue";
-import { PhoneCall, Clock as ClockIcon, QrCode, TrendingUp, Megaphone } from "lucide-react";
+import { PhoneCall, Clock as ClockIcon, QrCode, TrendingUp, Megaphone, Volume2, VolumeX, Maximize2 } from "lucide-react";
 
 export const Route = createFileRoute("/display")({
   head: () => ({
@@ -31,6 +31,23 @@ const FX = [
 function DisplayPage() {
   const { tickets } = useTickets();
   const lastSpokenId = useRef<string | null>(null);
+  const [muted, setMuted] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("bcn-display-muted") === "1";
+  });
+  const toggleMute = () => {
+    setMuted((m) => {
+      const nv = !m;
+      try { localStorage.setItem("bcn-display-muted", nv ? "1" : "0"); } catch {}
+      if (nv && typeof window !== "undefined") window.speechSynthesis?.cancel();
+      return nv;
+    });
+  };
+  const goFullscreen = () => {
+    if (typeof document === "undefined") return;
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  };
 
   const called = useMemo(
     () => tickets.filter((t) => t.called_at).sort((a, b) => +new Date(b.called_at!) - +new Date(a.called_at!)),
@@ -57,6 +74,7 @@ function DisplayPage() {
     if (current && current.id !== lastSpokenId.current) {
       lastSpokenId.current = current.id;
       const counter = current.counter ?? 1;
+      if (muted) return;
       // chime
       try {
         const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -72,7 +90,7 @@ function DisplayPage() {
       } catch { /* noop */ }
       setTimeout(() => speak(`Senha ${current.ticket_code.split("").join(" ")}, balcão ${counter}`), 600);
     }
-  }, [current]);
+  }, [current, muted]);
 
   return (
     <main className="flex h-screen w-screen flex-col overflow-hidden bg-background">
