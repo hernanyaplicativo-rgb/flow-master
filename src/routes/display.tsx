@@ -93,7 +93,17 @@ function DisplayPage() {
   }, [current, muted]);
 
   return (
-    <main className="flex h-screen w-screen flex-col overflow-hidden bg-background">
+    <main className="relative flex h-screen w-screen flex-col overflow-hidden bg-background">
+      <div className="absolute right-3 top-3 z-50 flex gap-2">
+        <button onClick={toggleMute} aria-label={muted ? "Ativar som" : "Silenciar"}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/80 text-foreground shadow-soft backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground">
+          {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        </button>
+        <button onClick={goFullscreen} aria-label="Tela cheia"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/80 text-foreground shadow-soft backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground">
+          <Maximize2 className="h-4 w-4" />
+        </button>
+      </div>
       <div className="grid flex-1 grid-cols-3 gap-4 overflow-hidden p-5 pb-2">
         {/* LEFT — SENHA ATUAL (2/3) */}
         <section className="col-span-2 flex flex-col rounded-3xl border-[3px] border-primary bg-card p-8 shadow-elegant">
