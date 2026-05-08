@@ -1,7 +1,7 @@
 import { Link, Outlet, createRootRoute, HeadContent, Scripts, useLocation } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
-import { Calendar, Monitor, Tv, LayoutDashboard } from "lucide-react";
+import { Calendar, Monitor, Tv, LayoutDashboard, BarChart3 } from "lucide-react";
 
 function NotFoundComponent() {
   return (
@@ -47,6 +47,7 @@ const NAV = [
   { to: "/kiosk", label: "Quiosque", icon: Monitor },
   { to: "/display", label: "Painel TV", icon: Tv },
   { to: "/staff", label: "Atendente", icon: LayoutDashboard },
+  { to: "/analytics", label: "Analytics", icon: BarChart3 },
 ] as const;
 
 function RootComponent() {
