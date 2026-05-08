@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Accessibility, QrCode, Loader2, ArrowLeft, ScanLine, Briefcase, Banknote, HelpCircle, Clock, Smartphone, ChevronRight, Printer } from "lucide-react";
+import { Accessibility, Loader2, ArrowLeft, ScanLine, Briefcase, Banknote, HelpCircle, Clock, Smartphone, ChevronRight, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
