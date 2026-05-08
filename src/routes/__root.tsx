@@ -1,7 +1,7 @@
 import { Link, Outlet, createRootRoute, HeadContent, Scripts, useLocation } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
-import { Calendar, Monitor, Tv, LayoutDashboard } from "lucide-react";
+import { Calendar, Monitor, Tv, LayoutDashboard, BarChart3 } from "lucide-react";
 
 function NotFoundComponent() {
   return (
@@ -19,11 +19,18 @@ export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "BCN — Omni-channel Queuing" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#D32F2F" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "BCN Flow" },
+      { title: "BCN Flow — Omni-channel Queuing" },
       { name: "description", content: "Plataforma enterprise de gestão de experiência do cliente do BCN." },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -47,6 +54,7 @@ const NAV = [
   { to: "/kiosk", label: "Quiosque", icon: Monitor },
   { to: "/display", label: "Painel TV", icon: Tv },
   { to: "/staff", label: "Atendente", icon: LayoutDashboard },
+  { to: "/analytics", label: "Analytics", icon: BarChart3 },
 ] as const;
 
 function RootComponent() {

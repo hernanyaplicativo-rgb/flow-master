@@ -179,3 +179,8 @@
   }
   .animate-marquee { animation: marquee 45s linear infinite; }
 }
+
+@media print {
+  header, nav, footer, .print\\:hidden { display: none !important; }
+  body { background: #fff !important; }
+}

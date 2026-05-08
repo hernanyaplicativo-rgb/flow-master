@@ -1,0 +1,13 @@
+{
+  "name": "BCN Flow — Omni-channel Queuing",
+  "short_name": "BCN Flow",
+  "description": "Plataforma enterprise de gestão de experiência do cliente do BCN.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#D32F2F",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "64x64", "type": "image/x-icon" }
+  ]
+}

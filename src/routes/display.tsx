@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTickets } from "@/hooks/useTickets";
 import { speak } from "@/lib/queue";
-import { PhoneCall, Clock as ClockIcon, QrCode, TrendingUp, Megaphone } from "lucide-react";
+import { PhoneCall, Clock as ClockIcon, QrCode, TrendingUp, Megaphone, Volume2, VolumeX, Maximize2 } from "lucide-react";
 
 export const Route = createFileRoute("/display")({
   head: () => ({
@@ -31,6 +31,23 @@ const FX = [
 function DisplayPage() {
   const { tickets } = useTickets();
   const lastSpokenId = useRef<string | null>(null);
+  const [muted, setMuted] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("bcn-display-muted") === "1";
+  });
+  const toggleMute = () => {
+    setMuted((m) => {
+      const nv = !m;
+      try { localStorage.setItem("bcn-display-muted", nv ? "1" : "0"); } catch {}
+      if (nv && typeof window !== "undefined") window.speechSynthesis?.cancel();
+      return nv;
+    });
+  };
+  const goFullscreen = () => {
+    if (typeof document === "undefined") return;
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  };
 
   const called = useMemo(
     () => tickets.filter((t) => t.called_at).sort((a, b) => +new Date(b.called_at!) - +new Date(a.called_at!)),
@@ -57,6 +74,7 @@ function DisplayPage() {
     if (current && current.id !== lastSpokenId.current) {
       lastSpokenId.current = current.id;
       const counter = current.counter ?? 1;
+      if (muted) return;
       // chime
       try {
         const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -72,10 +90,20 @@ function DisplayPage() {
       } catch { /* noop */ }
       setTimeout(() => speak(`Senha ${current.ticket_code.split("").join(" ")}, balcão ${counter}`), 600);
     }
-  }, [current]);
+  }, [current, muted]);
 
   return (
-    <main className="flex h-screen w-screen flex-col overflow-hidden bg-background">
+    <main className="relative flex h-screen w-screen flex-col overflow-hidden bg-background">
+      <div className="absolute right-3 top-3 z-50 flex gap-2">
+        <button onClick={toggleMute} aria-label={muted ? "Ativar som" : "Silenciar"}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/80 text-foreground shadow-soft backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground">
+          {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        </button>
+        <button onClick={goFullscreen} aria-label="Tela cheia"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/80 text-foreground shadow-soft backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground">
+          <Maximize2 className="h-4 w-4" />
+        </button>
+      </div>
       <div className="grid flex-1 grid-cols-3 gap-4 overflow-hidden p-5 pb-2">
         {/* LEFT — SENHA ATUAL (2/3) */}
         <section className="col-span-2 flex flex-col rounded-3xl border-[3px] border-primary bg-card p-8 shadow-elegant">
