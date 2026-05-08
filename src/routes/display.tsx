@@ -195,13 +195,23 @@ function DisplayPage() {
           </div>
 
           {/* Digital Signage */}
-          <div className="flex-1 rounded-2xl bg-card p-5 text-foreground shadow-soft">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-primary">Digital Signage</p>
-            <p className="mt-3 text-2xl font-extrabold leading-tight">
-              Conheça o <span className="text-primary">BCN Flow Business</span>.
-            </p>
-            <p className="mt-1 text-sm font-medium text-muted-foreground">Agilidade para a sua empresa com IA.</p>
-            <p className="mt-3 text-xs font-semibold text-foreground/70">Acesse: www.bcnflow.cv</p>
+          <div className="relative flex-1 overflow-hidden rounded-2xl bg-black text-foreground shadow-soft">
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              className="absolute inset-0 h-full w-full object-cover opacity-60"
+              src="https://cdn.pixabay.com/video/2020/05/25/40131-424823298_large.mp4"
+            />
+            <div className="relative flex h-full flex-col justify-end p-5">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-primary drop-shadow-md">Digital Signage</p>
+              <p className="mt-3 text-2xl font-extrabold leading-tight text-white drop-shadow-md">
+                Conheça o <span className="text-primary">BCN Flow Business</span>.
+              </p>
+              <p className="mt-1 text-sm font-medium text-white/90 drop-shadow-md">Agilidade para a sua empresa com IA.</p>
+              <p className="mt-3 text-xs font-semibold text-white/70 drop-shadow-md">Acesse: www.bcnflow.cv</p>
+            </div>
           </div>
 
           {/* Footer: clock + QR */}

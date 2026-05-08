@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon, Accessibility, User, CheckCircle2, Loader2, Download, MessageCircle, MapPin } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useTickets } from "@/hooks/useTickets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,8 +91,8 @@ function BookingPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-semibold">Nome completo</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Como devemos te chamar?" autoComplete="name" />
+              <Label htmlFor="name" className="text-sm font-semibold">Nome completo <span className="text-destructive" aria-hidden>*</span></Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Como devemos te chamar?" autoComplete="name" aria-required="true" />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -137,10 +138,12 @@ function BookingPage() {
               </div>
             </div>
 
-            <Button size="lg" className="h-12 w-full bg-success text-base font-bold text-success-foreground hover:bg-success/90" onClick={submit} disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
-              Emitir Ticket Digital
-            </Button>
+            <div aria-live="polite">
+              <Button size="lg" className="h-12 w-full bg-success text-base font-bold text-success-foreground hover:bg-success/90" onClick={submit} disabled={loading} aria-busy={loading}>
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden />}
+                Emitir Ticket Digital
+              </Button>
+            </div>
           </div>
         </Card>
       </div>
@@ -169,7 +172,26 @@ function CategoryTile({ active, onClick, icon, title, subtitle }: { active: bool
 
 function TicketView({ ticket, onNew }: { ticket: Ticket; onNew: () => void }) {
   const [checkingIn, setCheckingIn] = useState(false);
+  const { tickets } = useTickets();
   const payload = JSON.stringify({ id: ticket.id, code: ticket.ticket_code });
+
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  useEffect(() => {
+    const liveTicket = tickets.find((t) => t.id === ticket.id);
+    if (liveTicket && liveTicket.status === "called") {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("Sua Senha foi Chamada! 📢", {
+          body: `Dirija-se ao Balcão ${liveTicket.counter || 1}.`,
+        });
+      }
+      toast.success(`Sua senha foi chamada! Dirija-se ao Balcão ${liveTicket.counter || 1}.`, { duration: 10000 });
+    }
+  }, [tickets, ticket.id]);
 
   const shareWhatsApp = () => {
     const text = encodeURIComponent(`Olá! Minha senha no BCN Flow é *${ticket.ticket_code}* para atendimento ${ticket.category === "priority" ? "Prioritário" : "Normal"}. Acompanhe pelo quiosque!`);

@@ -1,7 +1,8 @@
 import { Link, Outlet, createRootRoute, HeadContent, Scripts, useLocation } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
-import { Calendar, Monitor, Tv, LayoutDashboard, BarChart3 } from "lucide-react";
+import { Calendar, Monitor, Tv, LayoutDashboard, BarChart3, WifiOff } from "lucide-react";
 
 function NotFoundComponent() {
   return (
@@ -60,9 +61,24 @@ const NAV = [
 function RootComponent() {
   const loc = useLocation();
   const fullscreen = loc.pathname === "/display";
+  const [isOffline, setIsOffline] = useState(false);
+
+  useEffect(() => {
+    setIsOffline(!navigator.onLine);
+    const up = () => setIsOffline(false);
+    const down = () => setIsOffline(true);
+    window.addEventListener("online", up);
+    window.addEventListener("offline", down);
+    return () => { window.removeEventListener("online", up); window.removeEventListener("offline", down); };
+  }, []);
 
   return (
     <>
+      {isOffline && (
+        <div className="fixed top-0 left-0 w-full z-[100] flex items-center justify-center gap-2 bg-destructive px-4 py-1.5 text-xs font-bold text-destructive-foreground shadow-md animate-in slide-in-from-top-full">
+          <WifiOff className="h-4 w-4" /> Você está offline. O sistema tentará reconectar automaticamente.
+        </div>
+      )}
       {!fullscreen && (
         <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
           <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
