@@ -141,6 +141,19 @@ function BookingPage() {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Balcão de atendimento <span className="text-destructive" aria-hidden>*</span></Label>
+              <Select value={assignedCounter} onValueChange={setAssignedCounter}>
+                <SelectTrigger><SelectValue placeholder="Escolher balcão" /></SelectTrigger>
+                <SelectContent>
+                  {COUNTERS.map((c) => (
+                    <SelectItem key={c} value={String(c)}>Balcão {c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground">Sua marcação será atribuída ao balcão escolhido.</p>
+            </div>
+
             <div aria-live="polite">
               <Button size="lg" className="h-12 w-full bg-success text-base font-bold text-success-foreground hover:bg-success/90" onClick={submit} disabled={loading} aria-busy={loading}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden />}
