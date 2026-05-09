@@ -339,7 +339,7 @@ function StaffPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CalendarClock className="h-4 w-4 text-primary" aria-hidden />
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-primary">Marcações</p>
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-primary">Marcações · Balcão {counter}</p>
                 </div>
                 <span className="text-[10px] font-bold text-muted-foreground">{scheduled.length}</span>
               </div>
