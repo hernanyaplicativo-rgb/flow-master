@@ -39,9 +39,22 @@ export function useTickets() {
         "postgres_changes",
         { event: "*", schema: "public", table: "tickets" },
         (payload) => {
-          // Optimization: We could handle payload.new/old here to avoid full reload
-          // but for now, re-loading is safe and ensures consistency with DB state
-          load();
+          if (payload.eventType === 'INSERT') {
+            setTickets((prev) => {
+              const newTicket = payload.new as Ticket;
+              // Prevent duplicates just in case
+              if (prev.some((t) => t.id === newTicket.id)) return prev;
+              return [newTicket, ...prev].sort(
+                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+              );
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            setTickets((prev) =>
+              prev.map((t) => (t.id === payload.new.id ? { ...t, ...payload.new } as Ticket : t))
+            );
+          } else if (payload.eventType === 'DELETE') {
+            setTickets((prev) => prev.filter((t) => t.id !== payload.old.id));
+          }
         },
       )
       .subscribe();

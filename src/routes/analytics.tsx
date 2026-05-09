@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTickets } from "@/hooks/useTickets";
 import { Card } from "@/components/ui/card";
 import {
@@ -83,6 +83,11 @@ function AnalyticsPage() {
     URL.revokeObjectURL(url);
   };
 
+  const [dateStr, setDateStr] = useState("");
+  useEffect(() => {
+    setDateStr(new Date().toLocaleDateString("pt-BR", { dateStyle: "long" }));
+  }, []);
+
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-secondary/30">
       <div className="mx-auto max-w-7xl space-y-5 px-4 py-6">
@@ -90,7 +95,7 @@ function AnalyticsPage() {
           <div>
             <p className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-primary">BCN Flow · Inteligência</p>
             <h1 className="mt-1 text-2xl font-black tracking-tight md:text-3xl">Analytics Operacional</h1>
-            <p className="text-sm text-muted-foreground">Métricas em tempo real do dia · {new Date().toLocaleDateString("pt-BR", { dateStyle: "long" })}</p>
+            <p className="text-sm text-muted-foreground">Métricas em tempo real do dia · {dateStr}</p>
           </div>
           <Button onClick={exportCSV} variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
             <Download className="mr-2 h-4 w-4" /> Exportar CSV
