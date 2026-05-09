@@ -75,6 +75,15 @@ function StaffPage() {
     return Math.round(samples.reduce((a, b) => a + b, 0) / samples.length);
   }, [doneToday]);
 
+  // Upcoming scheduled appointments (still waiting, with a future or today's slot)
+  const scheduled = useMemo(() => {
+    const now = Date.now();
+    return tickets
+      .filter((t) => t.scheduled_at && ["waiting", "hold"].includes(t.status))
+      .filter((t) => +new Date(t.scheduled_at!) >= now - 60 * 60 * 1000) // include up to 1h late
+      .sort((a, b) => +new Date(a.scheduled_at!) - +new Date(b.scheduled_at!));
+  }, [tickets]);
+
   const slaBreaches = queue.filter((t) => waitMinutes(t) >= SLA_WARN).length;
   const slaWarning = queue.filter((t) => { const w = waitMinutes(t); return w >= SLA_OK && w < SLA_WARN; }).length;
   const slaCompliance = queue.length === 0 ? 100 : Math.round(((queue.length - slaBreaches) / queue.length) * 100);
