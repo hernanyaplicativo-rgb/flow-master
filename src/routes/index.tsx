@@ -33,12 +33,14 @@ function BookingPage() {
   const [name, setName] = useState("");
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [hour, setHour] = useState<string>("");
+  const [assignedCounter, setAssignedCounter] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [ticket, setTicket] = useState<Ticket | null>(null);
 
   const submit = async () => {
     if (!name.trim()) return toast.error("Informe seu nome.");
     if (!date || !hour) return toast.error("Escolha data e horário.");
+    if (!assignedCounter) return toast.error("Escolha o balcão de atendimento.");
     setLoading(true);
     try {
       const dt = new Date(date);
@@ -47,9 +49,10 @@ function BookingPage() {
         category,
         customer_name: name.trim(),
         scheduled_at: dt.toISOString(),
+        assigned_counter: Number(assignedCounter),
       });
       setTicket(t);
-      toast.success(`Ticket ${t.ticket_code} emitido!`);
+      toast.success(`Ticket ${t.ticket_code} emitido para o Balcão ${assignedCounter}!`);
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao emitir ticket.");
     } finally {
