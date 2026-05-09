@@ -14,7 +14,7 @@ import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createTicket, PEAK_HOURS, type Ticket, type TicketCategory } from "@/lib/queue";
+import { createTicket, PEAK_HOURS, COUNTERS, type Ticket, type TicketCategory } from "@/lib/queue";
 
 export const Route = createFileRoute("/")({
   head: () => ({
