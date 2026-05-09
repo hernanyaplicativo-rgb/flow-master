@@ -196,6 +196,19 @@ function StaffPage() {
       </div>
 
       <div className="mx-auto max-w-7xl space-y-5 px-4 py-6">
+        {/* Conflict Warning */}
+        {conflict && (
+          <div role="alert" className="flex items-center gap-3 rounded-xl border-2 border-warning/50 bg-warning/10 px-5 py-3 text-warning-foreground animate-slide-up">
+            <AlertTriangle className="h-5 w-5 shrink-0 text-warning" aria-hidden />
+            <p className="text-sm font-semibold text-foreground">
+              Conflito de agenda: marcação <span className="font-black text-primary">{conflict.ticket_code}</span>
+              {conflict.customer_name ? ` (${conflict.customer_name})` : ""} às{" "}
+              <span className="font-bold">{new Date(conflict.scheduled_at!).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+              {" "}colide com o atendimento atual deste balcão.
+            </p>
+          </div>
+        )}
+
         {/* SLA Banner */}
         {slaBreaches > 0 && (
           <div role="alert" className="flex items-center gap-3 rounded-xl border-2 border-destructive/40 bg-destructive/5 px-5 py-3 text-destructive animate-slide-up">
