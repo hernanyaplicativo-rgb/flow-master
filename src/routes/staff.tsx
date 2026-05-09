@@ -56,14 +56,15 @@ function StaffPage() {
       });
   }, [tickets]);
 
+  // Only show MY counter's active ticket so multiple stations don't collide
   const serving = useMemo(
-    () => tickets.find((t) => t.status === "called" || t.status === "serving") ?? null,
-    [tickets],
+    () => tickets.find((t) => (t.status === "called" || t.status === "serving") && t.counter === counter) ?? null,
+    [tickets, counter],
   );
-  const next = useMemo(() => queue.find((t) => t.id !== serving?.id) ?? null, [queue, serving]);
+  const next = useMemo(() => queue.find((t) => t.id !== serving?.id && t.status === "waiting") ?? null, [queue, serving]);
   const recent = useMemo(
-    () => tickets.filter((t) => t.called_at).sort((a, b) => +new Date(b.called_at!) - +new Date(a.called_at!)).slice(0, 5),
-    [tickets],
+    () => tickets.filter((t) => t.called_at && t.counter === counter).sort((a, b) => +new Date(b.called_at!) - +new Date(a.called_at!)).slice(0, 5),
+    [tickets, counter],
   );
   const doneToday = tickets.filter((t) => t.status === "done");
   const avgServe = useMemo(() => {
@@ -97,15 +98,44 @@ function StaffPage() {
 
   const callNext = async () => {
     if (serving) return toast.warning("Finalize o ticket atual primeiro.");
-    const n = queue.find((t) => t.status !== "called");
+    const n = queue.find((t) => t.status === "waiting" || t.status === "hold");
     if (!n) return toast.info("Fila vazia.");
     await update(n.id, { status: "called", counter, called_at: new Date().toISOString() });
-    toast.success(`Chamando ${n.ticket_code}`);
+    toast.success(`Chamando ${n.ticket_code} no balcão ${counter}`);
   };
-  const recall = async () => { if (serving) { await update(serving.id, { called_at: new Date().toISOString() }); toast.info(`Rechamando ${serving.ticket_code}`); } };
-  const hold = async () => { if (serving) await update(serving.id, { status: "hold", counter: null }); };
-  const transfer = async () => { if (serving) { await update(serving.id, { status: "waiting", counter: null, called_at: null }); toast.info("Transferido para fila"); } };
-  const finish = async () => { if (serving) { await update(serving.id, { status: "done", finished_at: new Date().toISOString(), served_at: serving.served_at ?? new Date().toISOString() }); toast.success("Atendimento concluído"); } };
+  const recall = async () => {
+    if (!serving) return toast.info("Nenhum cliente em atendimento.");
+    await update(serving.id, { called_at: new Date().toISOString() });
+    toast.info(`Rechamando ${serving.ticket_code}`);
+  };
+  const hold = async () => {
+    if (!serving) return toast.info("Nenhum cliente em atendimento.");
+    await update(serving.id, { status: "hold", counter: null });
+    toast.warning(`${serving.ticket_code} em espera`);
+  };
+  const transfer = async () => {
+    if (!serving) return toast.info("Nenhum cliente em atendimento.");
+    const input = window.prompt(`Transferir ${serving.ticket_code} para qual balcão? (deixe em branco para devolver à fila)`, "");
+    if (input === null) return;
+    const target = input.trim() === "" ? null : Number(input);
+    if (target !== null && (!Number.isFinite(target) || target < 1)) return toast.error("Balcão inválido");
+    if (target === null) {
+      await update(serving.id, { status: "waiting", counter: null, called_at: null });
+      toast.info(`${serving.ticket_code} devolvido à fila`);
+    } else {
+      await update(serving.id, { status: "called", counter: target, called_at: new Date().toISOString() });
+      toast.success(`${serving.ticket_code} transferido para balcão ${target}`);
+    }
+  };
+  const finish = async () => {
+    if (!serving) return;
+    await update(serving.id, {
+      status: "done",
+      finished_at: new Date().toISOString(),
+      served_at: serving.served_at ?? new Date().toISOString(),
+    });
+    toast.success(`${serving.ticket_code} concluído`);
+  };
 
   // Keyboard shortcuts (enterprise productivity)
   useEffect(() => {
