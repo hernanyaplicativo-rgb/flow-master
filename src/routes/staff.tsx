@@ -348,19 +348,32 @@ function StaffPage() {
                 {scheduled.slice(0, 6).map((t) => {
                   const when = new Date(t.scheduled_at!);
                   const isToday = when.toDateString() === new Date().toDateString();
-                  const late = Date.now() - +when > 0;
+                  const diffMin = Math.round((+when - Date.now()) / 60000);
+                  const late = diffMin < 0;
+                  // SLA tiers: Atrasado (vermelho) | Iminente <=5min (warning) | Em breve <=30min (primary) | Agendado
+                  const tier = late
+                    ? { label: `Atrasado ${Math.abs(diffMin)}m`, ring: "border-destructive/50 bg-destructive/5", dot: "bg-destructive animate-pulse", text: "text-destructive" }
+                    : diffMin <= 5
+                      ? { label: `em ${diffMin}m`, ring: "border-warning/50 bg-warning/5", dot: "bg-warning animate-pulse", text: "text-warning" }
+                      : diffMin <= 30
+                        ? { label: `em ${diffMin}m`, ring: "border-primary/40 bg-primary/5", dot: "bg-primary", text: "text-primary" }
+                        : { label: isToday ? `em ${diffMin}m` : when.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }), ring: "border-border bg-card", dot: "bg-muted-foreground/40", text: "text-muted-foreground" };
+                  const conflictHere = conflict?.id === t.id;
                   return (
-                    <li key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2.5">
-                      <div className="flex flex-col">
-                        <span className="text-base font-black tracking-tight text-primary">{t.ticket_code}</span>
-                        <span className="text-[11px] font-semibold text-muted-foreground">{t.customer_name ?? "Sem nome"}</span>
+                    <li key={t.id} className={cn("flex items-center justify-between rounded-lg border-2 px-3 py-2.5 transition-colors", tier.ring, conflictHere && "ring-2 ring-warning/60")}>
+                      <div className="flex items-center gap-2">
+                        <span className={cn("h-2 w-2 rounded-full", tier.dot)} aria-hidden />
+                        <div className="flex flex-col">
+                          <span className="text-base font-black tracking-tight text-primary">{t.ticket_code}</span>
+                          <span className="text-[11px] font-semibold text-muted-foreground">{t.customer_name ?? "Sem nome"}</span>
+                        </div>
                       </div>
                       <div className="text-right">
-                        <div className={cn("text-xs font-bold tabular-nums", late ? "text-destructive" : "text-foreground")}>
+                        <div className={cn("text-xs font-bold tabular-nums", tier.text)}>
                           {when.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                         </div>
-                        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {isToday ? (late ? "Atrasado" : "Hoje") : when.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+                        <div className={cn("text-[10px] font-extrabold uppercase tracking-wider", tier.text)}>
+                          {tier.label}
                         </div>
                       </div>
                     </li>
