@@ -75,14 +75,24 @@ function StaffPage() {
     return Math.round(samples.reduce((a, b) => a + b, 0) / samples.length);
   }, [doneToday]);
 
-  // Upcoming scheduled appointments (still waiting, with a future or today's slot)
+  // Upcoming scheduled appointments ASSIGNED to THIS counter
   const scheduled = useMemo(() => {
     const now = Date.now();
     return tickets
-      .filter((t) => t.scheduled_at && ["waiting", "hold"].includes(t.status))
+      .filter((t) => t.scheduled_at && t.assigned_counter === counter && ["waiting", "hold"].includes(t.status))
       .filter((t) => +new Date(t.scheduled_at!) >= now - 60 * 60 * 1000) // include up to 1h late
       .sort((a, b) => +new Date(a.scheduled_at!) - +new Date(b.scheduled_at!));
-  }, [tickets]);
+  }, [tickets, counter]);
+
+  // Conflict: customer in service while a scheduled appointment is starting within 5 min
+  const conflict = useMemo(() => {
+    if (!serving) return null;
+    const now = Date.now();
+    return scheduled.find((t) => {
+      const diff = (+new Date(t.scheduled_at!) - now) / 60000; // min
+      return diff <= 5 && diff >= -10 && t.id !== serving.id;
+    }) ?? null;
+  }, [serving, scheduled]);
 
   const slaBreaches = queue.filter((t) => waitMinutes(t) >= SLA_WARN).length;
   const slaWarning = queue.filter((t) => { const w = waitMinutes(t); return w >= SLA_OK && w < SLA_WARN; }).length;
@@ -146,6 +156,16 @@ function StaffPage() {
     toast.success(`${serving.ticket_code} concluído`);
   };
 
+  // Toast when a new conflict appears
+  const [lastConflictId, setLastConflictId] = useState<string | null>(null);
+  useEffect(() => {
+    if (conflict && conflict.id !== lastConflictId) {
+      toast.warning(`Conflito: marcação ${conflict.ticket_code} às ${new Date(conflict.scheduled_at!).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} no seu balcão.`, { duration: 8000 });
+      setLastConflictId(conflict.id);
+    }
+    if (!conflict && lastConflictId) setLastConflictId(null);
+  }, [conflict, lastConflictId]);
+
   // Keyboard shortcuts (enterprise productivity)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -186,6 +206,19 @@ function StaffPage() {
       </div>
 
       <div className="mx-auto max-w-7xl space-y-5 px-4 py-6">
+        {/* Conflict Warning */}
+        {conflict && (
+          <div role="alert" className="flex items-center gap-3 rounded-xl border-2 border-warning/50 bg-warning/10 px-5 py-3 text-warning-foreground animate-slide-up">
+            <AlertTriangle className="h-5 w-5 shrink-0 text-warning" aria-hidden />
+            <p className="text-sm font-semibold text-foreground">
+              Conflito de agenda: marcação <span className="font-black text-primary">{conflict.ticket_code}</span>
+              {conflict.customer_name ? ` (${conflict.customer_name})` : ""} às{" "}
+              <span className="font-bold">{new Date(conflict.scheduled_at!).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+              {" "}colide com o atendimento atual deste balcão.
+            </p>
+          </div>
+        )}
+
         {/* SLA Banner */}
         {slaBreaches > 0 && (
           <div role="alert" className="flex items-center gap-3 rounded-xl border-2 border-destructive/40 bg-destructive/5 px-5 py-3 text-destructive animate-slide-up">
@@ -316,7 +349,7 @@ function StaffPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CalendarClock className="h-4 w-4 text-primary" aria-hidden />
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-primary">Marcações</p>
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-primary">Marcações · Balcão {counter}</p>
                 </div>
                 <span className="text-[10px] font-bold text-muted-foreground">{scheduled.length}</span>
               </div>
@@ -325,19 +358,32 @@ function StaffPage() {
                 {scheduled.slice(0, 6).map((t) => {
                   const when = new Date(t.scheduled_at!);
                   const isToday = when.toDateString() === new Date().toDateString();
-                  const late = Date.now() - +when > 0;
+                  const diffMin = Math.round((+when - Date.now()) / 60000);
+                  const late = diffMin < 0;
+                  // SLA tiers: Atrasado (vermelho) | Iminente <=5min (warning) | Em breve <=30min (primary) | Agendado
+                  const tier = late
+                    ? { label: `Atrasado ${Math.abs(diffMin)}m`, ring: "border-destructive/50 bg-destructive/5", dot: "bg-destructive animate-pulse", text: "text-destructive" }
+                    : diffMin <= 5
+                      ? { label: `em ${diffMin}m`, ring: "border-warning/50 bg-warning/5", dot: "bg-warning animate-pulse", text: "text-warning" }
+                      : diffMin <= 30
+                        ? { label: `em ${diffMin}m`, ring: "border-primary/40 bg-primary/5", dot: "bg-primary", text: "text-primary" }
+                        : { label: isToday ? `em ${diffMin}m` : when.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }), ring: "border-border bg-card", dot: "bg-muted-foreground/40", text: "text-muted-foreground" };
+                  const conflictHere = conflict?.id === t.id;
                   return (
-                    <li key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2.5">
-                      <div className="flex flex-col">
-                        <span className="text-base font-black tracking-tight text-primary">{t.ticket_code}</span>
-                        <span className="text-[11px] font-semibold text-muted-foreground">{t.customer_name ?? "Sem nome"}</span>
+                    <li key={t.id} className={cn("flex items-center justify-between rounded-lg border-2 px-3 py-2.5 transition-colors", tier.ring, conflictHere && "ring-2 ring-warning/60")}>
+                      <div className="flex items-center gap-2">
+                        <span className={cn("h-2 w-2 rounded-full", tier.dot)} aria-hidden />
+                        <div className="flex flex-col">
+                          <span className="text-base font-black tracking-tight text-primary">{t.ticket_code}</span>
+                          <span className="text-[11px] font-semibold text-muted-foreground">{t.customer_name ?? "Sem nome"}</span>
+                        </div>
                       </div>
                       <div className="text-right">
-                        <div className={cn("text-xs font-bold tabular-nums", late ? "text-destructive" : "text-foreground")}>
+                        <div className={cn("text-xs font-bold tabular-nums", tier.text)}>
                           {when.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                         </div>
-                        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {isToday ? (late ? "Atrasado" : "Hoje") : when.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+                        <div className={cn("text-[10px] font-extrabold uppercase tracking-wider", tier.text)}>
+                          {tier.label}
                         </div>
                       </div>
                     </li>

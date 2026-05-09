@@ -14,7 +14,7 @@ import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createTicket, PEAK_HOURS, type Ticket, type TicketCategory } from "@/lib/queue";
+import { createTicket, PEAK_HOURS, COUNTERS, type Ticket, type TicketCategory } from "@/lib/queue";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -33,12 +33,14 @@ function BookingPage() {
   const [name, setName] = useState("");
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [hour, setHour] = useState<string>("");
+  const [assignedCounter, setAssignedCounter] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [ticket, setTicket] = useState<Ticket | null>(null);
 
   const submit = async () => {
     if (!name.trim()) return toast.error("Informe seu nome.");
     if (!date || !hour) return toast.error("Escolha data e horário.");
+    if (!assignedCounter) return toast.error("Escolha o balcão de atendimento.");
     setLoading(true);
     try {
       const dt = new Date(date);
@@ -47,9 +49,10 @@ function BookingPage() {
         category,
         customer_name: name.trim(),
         scheduled_at: dt.toISOString(),
+        assigned_counter: Number(assignedCounter),
       });
       setTicket(t);
-      toast.success(`Ticket ${t.ticket_code} emitido!`);
+      toast.success(`Ticket ${t.ticket_code} emitido para o Balcão ${assignedCounter}!`);
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao emitir ticket.");
     } finally {
@@ -136,6 +139,19 @@ function BookingPage() {
                 </Select>
                 <p className="text-[11px] text-muted-foreground">Horários de pico (12h, 13h, 17h, 18h) são bloqueados.</p>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Balcão de atendimento <span className="text-destructive" aria-hidden>*</span></Label>
+              <Select value={assignedCounter} onValueChange={setAssignedCounter}>
+                <SelectTrigger><SelectValue placeholder="Escolher balcão" /></SelectTrigger>
+                <SelectContent>
+                  {COUNTERS.map((c) => (
+                    <SelectItem key={c} value={String(c)}>Balcão {c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground">Sua marcação será atribuída ao balcão escolhido.</p>
             </div>
 
             <div aria-live="polite">

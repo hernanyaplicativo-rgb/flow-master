@@ -9,6 +9,7 @@ export interface Ticket {
   category: TicketCategory;
   status: TicketStatus;
   counter: number | null;
+  assigned_counter: number | null;
   customer_name: string | null;
   scheduled_at: string | null;
   created_at: string;
@@ -18,11 +19,13 @@ export interface Ticket {
 }
 
 export const PEAK_HOURS = [12, 13, 17, 18];
+export const COUNTERS = [1, 2, 3, 4, 5];
 
 export async function createTicket(input: {
   category: TicketCategory;
   customer_name?: string | null;
   scheduled_at?: string | null;
+  assigned_counter?: number | null;
 }): Promise<Ticket> {
   const { data: codeData, error: codeErr } = await supabase.rpc("next_ticket_code", {
     p_category: input.category,
@@ -37,7 +40,8 @@ export async function createTicket(input: {
       category: input.category,
       customer_name: input.customer_name ?? null,
       scheduled_at: input.scheduled_at ?? null,
-    })
+      assigned_counter: input.assigned_counter ?? null,
+    } as never)
     .select()
     .single();
   if (error) throw error;

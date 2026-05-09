@@ -34,6 +34,7 @@ export type Database = {
       }
       tickets: {
         Row: {
+          assigned_counter: number | null
           called_at: string | null
           category: string
           counter: number | null
@@ -47,6 +48,7 @@ export type Database = {
           ticket_code: string
         }
         Insert: {
+          assigned_counter?: number | null
           called_at?: string | null
           category: string
           counter?: number | null
@@ -60,6 +62,7 @@ export type Database = {
           ticket_code: string
         }
         Update: {
+          assigned_counter?: number | null
           called_at?: string | null
           category?: string
           counter?: number | null
