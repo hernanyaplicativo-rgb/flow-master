@@ -156,6 +156,16 @@ function StaffPage() {
     toast.success(`${serving.ticket_code} concluído`);
   };
 
+  // Toast when a new conflict appears
+  const [lastConflictId, setLastConflictId] = useState<string | null>(null);
+  useEffect(() => {
+    if (conflict && conflict.id !== lastConflictId) {
+      toast.warning(`Conflito: marcação ${conflict.ticket_code} às ${new Date(conflict.scheduled_at!).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} no seu balcão.`, { duration: 8000 });
+      setLastConflictId(conflict.id);
+    }
+    if (!conflict && lastConflictId) setLastConflictId(null);
+  }, [conflict, lastConflictId]);
+
   // Keyboard shortcuts (enterprise productivity)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
