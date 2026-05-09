@@ -12,10 +12,12 @@ export function useTickets() {
 
     const load = async (showLoading = false) => {
       if (showLoading) setLoading(true);
+      const startOfToday = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
+      // Include: tickets created today OR scheduled appointments from today onwards
       const { data, error } = await supabase
         .from("tickets")
         .select("*")
-        .gte("created_at", new Date(new Date().setHours(0, 0, 0, 0)).toISOString())
+        .or(`created_at.gte.${startOfToday},scheduled_at.gte.${startOfToday}`)
         .order("created_at", { ascending: false });
       
       if (!mounted) return;

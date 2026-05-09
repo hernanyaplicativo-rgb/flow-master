@@ -13,7 +13,7 @@ import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "rec
 import {
   Wifi, WifiOff, RotateCcw, Pause, ArrowRightLeft, Clock, Users, CheckCircle2,
   Accessibility, History, UserCircle2, PhoneCall, Settings, LogOut, AlertTriangle,
-  TrendingUp, Timer
+  TrendingUp, Timer, CalendarClock
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -74,6 +74,15 @@ function StaffPage() {
     if (!samples.length) return 0;
     return Math.round(samples.reduce((a, b) => a + b, 0) / samples.length);
   }, [doneToday]);
+
+  // Upcoming scheduled appointments (still waiting, with a future or today's slot)
+  const scheduled = useMemo(() => {
+    const now = Date.now();
+    return tickets
+      .filter((t) => t.scheduled_at && ["waiting", "hold"].includes(t.status))
+      .filter((t) => +new Date(t.scheduled_at!) >= now - 60 * 60 * 1000) // include up to 1h late
+      .sort((a, b) => +new Date(a.scheduled_at!) - +new Date(b.scheduled_at!));
+  }, [tickets]);
 
   const slaBreaches = queue.filter((t) => waitMinutes(t) >= SLA_WARN).length;
   const slaWarning = queue.filter((t) => { const w = waitMinutes(t); return w >= SLA_OK && w < SLA_WARN; }).length;
@@ -300,6 +309,40 @@ function StaffPage() {
                     </button>
                   </li>
                 ))}
+              </ul>
+            </Card>
+
+            <Card className="border-border p-5 shadow-soft">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CalendarClock className="h-4 w-4 text-primary" aria-hidden />
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-primary">Marcações</p>
+                </div>
+                <span className="text-[10px] font-bold text-muted-foreground">{scheduled.length}</span>
+              </div>
+              <ul className="mt-3 space-y-2">
+                {scheduled.length === 0 && <li className="text-sm text-muted-foreground">Sem marcações agendadas.</li>}
+                {scheduled.slice(0, 6).map((t) => {
+                  const when = new Date(t.scheduled_at!);
+                  const isToday = when.toDateString() === new Date().toDateString();
+                  const late = Date.now() - +when > 0;
+                  return (
+                    <li key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2.5">
+                      <div className="flex flex-col">
+                        <span className="text-base font-black tracking-tight text-primary">{t.ticket_code}</span>
+                        <span className="text-[11px] font-semibold text-muted-foreground">{t.customer_name ?? "Sem nome"}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className={cn("text-xs font-bold tabular-nums", late ? "text-destructive" : "text-foreground")}>
+                          {when.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                        </div>
+                        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          {isToday ? (late ? "Atrasado" : "Hoje") : when.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </Card>
 
