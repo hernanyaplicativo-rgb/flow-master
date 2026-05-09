@@ -13,7 +13,7 @@ import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "rec
 import {
   Wifi, WifiOff, RotateCcw, Pause, ArrowRightLeft, Clock, Users, CheckCircle2,
   Accessibility, History, UserCircle2, PhoneCall, Settings, LogOut, AlertTriangle,
-  TrendingUp, Timer
+  TrendingUp, Timer, CalendarClock
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
