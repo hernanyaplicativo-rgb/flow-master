@@ -56,14 +56,15 @@ function StaffPage() {
       });
   }, [tickets]);
 
+  // Only show MY counter's active ticket so multiple stations don't collide
   const serving = useMemo(
-    () => tickets.find((t) => t.status === "called" || t.status === "serving") ?? null,
-    [tickets],
+    () => tickets.find((t) => (t.status === "called" || t.status === "serving") && t.counter === counter) ?? null,
+    [tickets, counter],
   );
-  const next = useMemo(() => queue.find((t) => t.id !== serving?.id) ?? null, [queue, serving]);
+  const next = useMemo(() => queue.find((t) => t.id !== serving?.id && t.status === "waiting") ?? null, [queue, serving]);
   const recent = useMemo(
-    () => tickets.filter((t) => t.called_at).sort((a, b) => +new Date(b.called_at!) - +new Date(a.called_at!)).slice(0, 5),
-    [tickets],
+    () => tickets.filter((t) => t.called_at && t.counter === counter).sort((a, b) => +new Date(b.called_at!) - +new Date(a.called_at!)).slice(0, 5),
+    [tickets, counter],
   );
   const doneToday = tickets.filter((t) => t.status === "done");
   const avgServe = useMemo(() => {
